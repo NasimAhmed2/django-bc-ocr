@@ -1,0 +1,73 @@
+<!-- myapp/templates/myapp/home.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Processing App - Home</title>
+    <style>
+        body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #010a0f; /* Light grey background color */
+        background-image: url("{% static 'admin/img/imag-back.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        height: 100vh; /* Set height to full viewport height */
+        }
+
+        h1, h2 {
+            color: rgb(15, 12, 12);
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        button[type="submit"], .Display_all_pdf {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .Display_all_pdf {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the PDF Processing App</h1>
+    <h2>Select a PDF file and click on the button to upload and view:</h2>
+    
+    <!-- File Upload Form -->
+    <form method="post" enctype="multipart/form-data" action="{% url 'home' %}">
+        {% csrf_token %}
+        <input type="file" name="pdf_file" accept=".pdf" required>
+        <button type="submit">Upload and View PDF</button>
+    </form>
+    <button class="Display_all_pdf" onclick="Display_all_pdf()">Display Previous PDF</button>
+
+    <script>
+        function Display_all_pdf() {
+            window.location.href = "/display_pdf/"; // Update the URL to the home page URL
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display PDF Pages</title>
+    <style>
+        /* Adjust the height of the slider */
+        .slider {
+            width: 100%;
+            height: 50vh; /* Set the height to 50% of the viewport height */
+            overflow-x: hidden;
+        }
+
+        .slides {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%; /* Ensure slides fill the entire height of the slider */
+        }
+
+        .pdf-file {
+            flex: 0 0 33.33%; /* Each page takes up 1/3 of the slider width */
+        }
+
+        .pdf-page-previous {
+            width: 100%;
+            height: 100%; /* Make the embedded PDF fill the entire slide */
+        }
+
+        .home-button {
+            position: absolute;
+            top: 20px; /* Adjust the top position as needed */
+            right: 20px; /* Adjust the right position as needed */
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+
+        .drop-zone {
+            height: 50%;
+            border: 2px dashed #ccc;
+            text-align: center;
+            line-height: 200px; /* Center content vertically */
+        }
+
+        #processButton {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Displaying PDF Pages</h1>
+    <div class="slider">
+        <div class="slides">
+            {% for pdf_file in pdf_files %}
+            <div class="pdf-file">
+                <embed class="pdf-page-previous" src="{{ pdf_file.page.url }}" type="application/pdf" width="100%" height="600px" />
+                <!-- You can adjust width and height as needed -->
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
+    <!-- Home button -->
+    <button class="home-button" onclick="goToHome()">Upload New PDF</button>
+
+    <!-- Second half screen for drop zone and processing button -->
+    <div id="dropZone" class="drop-zone">
+        Drop PDF Page Here
+    </div>
+    <button id="processButton">Process File</button>
+
+    <script>
+
+        // Your JavaScript code here
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropZone = document.getElementById('dropZone');
+
+            dropZone.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', (event) => {
+                event.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (event) => {
+                event.preventDefault();
+                dropZone.classList.remove('drag-over');
+
+                const files = event.dataTransfer.files;
+                // Handle dropped files (e.g., display confirmation)
+                console.log('File dropped:', files);
+            });
+
+            const processButton = document.getElementById('processButton');
+            processButton.addEventListener('click', () => {
+                // Add logic to send dropped file to backend for processing
+            });
+        });
+
+        function goToHome() {
+            window.location.href = "/home"; // Update the URL to the home page URL
+        }
+
+        let currentSlide = 0;
+        const slides = document.querySelector('.slides');
+        const totalSlides = document.querySelectorAll('.pdf-file').length;
+
+        function showSlide() {
+            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentSlide = Math.max(currentSlide - 1, 0);
+            showSlide();
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentSlide = Math.min(currentSlide + 1, totalSlides - 1);
+            showSlide();
+        });
+    </script>
+</body>
+</html>
