@@ -69,8 +69,11 @@
     <button id="prevBtn">Previous</button>
     <button id="nextBtn">Next</button>
     <!-- Home button -->
-    <button class="home-button" onclick="goToHome()">Upload New PDF</button>
-
+    <div style="display: flex; align-items: center;">
+        <button class="home-button" onclick="goToHome()" style="margin-right: 100px;">Upload New PDF</button>
+        <a class="home-button" href="{% url 'logout' %}">Logout</a>
+        
+    </div>
     <!-- Second half screen for drop zone and processing button -->
     <div id="dropZone" class="drop-zone">
         Drop PDF Page Here
@@ -110,6 +113,9 @@
 
         function goToHome() {
             window.location.href = "/home"; // Update the URL to the home page URL
+        }
+        function Logout() {
+        window.location.href = "/logout";  // Redirect to the logout URL
         }
 
         let currentSlide = 0;

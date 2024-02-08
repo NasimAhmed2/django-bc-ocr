@@ -6,8 +6,10 @@ from django.contrib.auth import login, authenticate
 from .models import Page, UploadedPDF
 import fitz
 import os
+from django.contrib.auth import logout
 import shutil
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 # def process_uploaded_pdf(uploaded_pdf):
 #     # Open the uploaded PDF file
@@ -32,11 +34,12 @@ from django.contrib.auth.decorators import login_required
 #                 page_number=page_num + 1
 #             )
 
-def process_uploaded_pdf(uploaded_pdf):
+def process_uploaded_pdf(request,uploaded_pdf):
     
     # Save the new uploaded PDF file
     uploaded_pdf.save()
-
+    # Assuming user is the currently logged-in user
+    user = request.user
     # Open the uploaded PDF file
     with uploaded_pdf.pdf_file.open('rb') as file:
         # Open the PDF file using fitz
@@ -54,39 +57,64 @@ def process_uploaded_pdf(uploaded_pdf):
             new_doc.insert_pdf(pdf_document, from_page=page_num, to_page=page_num)
             new_doc.save(page_path)
             Page.objects.create(
+                user=user,
                 uploaded_pdf=uploaded_pdf,
                 page=page_path,
                 page_number=page_num + 1
             )
+def delete_user_data(request):
+    try:
+        user = request.user
+        # Get records from UploadedPDF table for the logged-in user
+        user_uploaded_pdfs = UploadedPDF.objects.filter(user=user)
+        # Get records from Page table for the logged-in user
+        print(user)
+        user_pages = Page.objects.filter(user=user)
+        # Delete files from pdf_page/ directory based on URLs stored in Page objects
+        for page in user_pages:
+            print(page.id, page.page, page.page_number, page.uploaded_pdf_id, page.user_id)
+            page_file_path = page.page.path
+            print(page_file_path)
+            if os.path.exists(page_file_path):
+                os.remove(page_file_path)
+
+        # Delete records from Page table for the logged-in user
+        user_pages.delete()
+
+        # Delete files from pdf_file/ directory based on URLs stored in UploadedPDF objects
+        for uploaded_pdf in user_uploaded_pdfs:
+            pdf_file_path = uploaded_pdf.pdf_file.path
+            
+            if os.path.exists(pdf_file_path):
+                
+                os.remove(pdf_file_path)
+                
+
+        # Delete records from UploadedPDF table for the logged-in user
+        user_uploaded_pdfs.delete()
+
+
+        
+    except:
+        pass
+
 @login_required
 def home(request):
-    
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             # Delete existing PDF and its associated pages, if any
             try:
-                # Delete all records from the database tables
-                UploadedPDF.objects.all().delete()
-                Page.objects.all().delete()
-                # Delete the PDF file from the file system
-                # Specify the directory path
-                pdf_directory = 'pdf_pages/'
-                pdf_directory1 = 'pdf_files/'
-                # Use shutil.rmtree to remove the entire directory and its contents
-                shutil.rmtree(pdf_directory)
-                shutil.rmtree(pdf_directory1)
-                # Create the directory again if needed
-                os.makedirs(pdf_directory)
-                os.makedirs(pdf_directory1)
+                delete_user_data(request)
 
             except UploadedPDF.DoesNotExist:
                 pass
-            uploaded_pdf = form.save()  # Save the uploaded PDF file to the database
-            # Process the uploaded PDF file and save its pages to the database
+            uploaded_pdf = form.save(commit=False)
+            uploaded_pdf.user = request.user  # Assign the logged-in user
+            uploaded_pdf.save()
              # Print the path to the uploaded file
-            print("Path to uploaded PDF file:", uploaded_pdf.pdf_file.path)
-            process_uploaded_pdf(uploaded_pdf)
+            
+            process_uploaded_pdf(request,uploaded_pdf)
 
             return redirect('display_pdf', pdf_id=uploaded_pdf.id)  # Redirect to display page with PDF ID
     else:
@@ -129,3 +157,11 @@ def user_login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    
+    return redirect('/login')
+
+def base_view(request):
+    return render(request, 'base.html')

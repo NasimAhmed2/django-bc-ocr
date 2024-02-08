@@ -6,15 +6,58 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
+    <style>
+        body {
+            background-color: #268c99; /* Dark background color */
+            color: #fff; /* White text color */
+            font-family: Arial, sans-serif; /* Choose your preferred font */
+            padding: 50px; /* Add padding for better readability */
+        }
+        h1,h2 {
+            text-align: center; /* Center align the heading */
+        }
+        form {
+            max-width: 300px; /* Set maximum width for the form */
+            margin: 0 auto; /* Center align the form */
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%; /* Full width input fields */
+            padding: 10px; /* Add padding for better appearance */
+            margin-bottom: 20px; /* Add space between input fields */
+            border: 1px solid #fff; /* White border */
+            background-color: transparent; /* Transparent background */
+            color: #fff; /* White text color */
+        }
+        input[type="submit"] {
+            width: 100%; /* Full width submit button */
+            padding: 10px; /* Add padding for better appearance */
+            border: none; /* No border */
+            background-color: #007bff; /* Blue background color */
+            color: #fff; /* White text color */
+            cursor: pointer; /* Show pointer cursor on hover */
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3; /* Darker blue color on hover */
+        }
+        p {
+            text-align: center; /* Center align the paragraph */
+        }
+        a {
+            color: #fff; /* White text color for links */
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
+    <h1>BLUE CONSULTING</h1>
+    <h2>Welcome to the Invoice Processor , Please Enter Your User Name and Password to Continue</h2>
+    
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Login</button>
     </form>
     <!-- Add a link to the signup page -->
-    <p>Not registered?  <a href="{% url 'signup' %}">Signup</a></p>
+    <p>Not registered? <a href="{% url 'signup' %}">Signup</a></p>
 </body>
 </html>

@@ -1,24 +1,73 @@
-<!-- Pdf_Extract/templates/base.html -->
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Your App Title{% endblock %}</title>
+    <title>Blue Consulting</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url("{% static 'admin/img/image.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+        }
+        .header {
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .header-buttons {
+            display: flex;
+            align-items: center;
+        }
+        .header button {
+            background-color: #007bff; /* Blue button color */
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            cursor: pointer;
+            
+        }
+        .header button:hover {
+            background-color: #0056b3; /* Darker blue color on hover */
+        }
+        .container {
+            padding: 20px;
+            text-align: center;
+        }
+        .container h2 {
+            margin-top: 0;
+        }
+        
+    </style>
 </head>
 <body>
-    <header>
-        <!-- Your header content goes here -->
-    </header>
-
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer>
-        <!-- Your footer content goes here -->
-    </footer>
+    <div class="header">
+        <h1>Blue Consulting</h1>
+        <div class="header-buttons">
+            <button>About us</button>
+            <button>Services</button>
+            <button>Contact us</button>
+            <button><a href="{% url 'login' %}">Login</a></button>
+            
+        </div>
+    </div>
+    <div class="container">
+        <h2>Welcome to Blue Consulting</h2>
+        <!-- Add your content here -->
+    </div>
 </body>
 </html>
