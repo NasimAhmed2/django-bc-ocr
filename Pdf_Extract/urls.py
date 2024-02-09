@@ -13,6 +13,6 @@ urlpatterns = [
     path('home', home, name='home'),
     path('display_pdf/<int:pdf_id>/', display_pdf, name='display_pdf'),
     path('display_pdf/', display_all_pdf, name='display_all_pdf'),
-    path('/logout/', logout_view, name='logout'),
+    path('logout/', logout_view, name='logout'),
     # Add other URLs as needed
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

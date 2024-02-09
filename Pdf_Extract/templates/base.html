@@ -47,27 +47,95 @@
         .container {
             padding: 20px;
             text-align: center;
+            color: #000; /* Black font color */
         }
         .container h2 {
             margin-top: 0;
         }
-        
+        .container ul {
+            list-style: none; /* Remove default list styles */
+            padding: 0;
+            text-align: center;
+            margin: 0 auto; /* Center the list horizontally */
+            max-width: 600px; /* Set maximum width for better readability */
+        }
+        .container ul li {
+            font-size: 16px; /* Adjust font size as needed */
+            margin-bottom: 5px; /* Add some space between list items */
+            text-align: left; /* Align list items to the left */
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Blue Consulting</h1>
         <div class="header-buttons">
-            <button>About us</button>
-            <button>Services</button>
-            <button>Contact us</button>
+            <button><a href="#about">About us</a></button>
+            <button><a href="#services">Services</a></button>
+            <button><a href="#contact">Contact us</a></button>
             <button><a href="{% url 'login' %}">Login</a></button>
-            
         </div>
     </div>
-    <div class="container">
-        <h2>Welcome to Blue Consulting</h2>
-        <!-- Add your content here -->
+    <div class="container" id="about">
+        <h2>About Us</h2>
+        <!-- Add your About Us content here -->
+        <h3>
+            At BC, we are engaged in doing some common things, uncommonly well. Our services has helped CFO’s to increase their managerial bandwidth by more than 30%. Trust and Communication is the pivot of our existence. We believe in under promise and over deliver. We have a culture of respecting every human being with whom we are working with or interact during the course of providing excellent professional services.
+
+Simplicity is at the core of our service offerings which help us in maintaining a work life balance . We un-complicate every complicated process or systems.
+
+
+A
+Some more information about BC:
+
+Serving clients since 2005
+Client retention period > 7 years
+100+ energetic professionals
+SLA adherence level @ 99.87%
+
+B
+Our service offerings:
+
+Consulting Services
+F&A Outsourcing Services
+Compliances
+Internal Audit services
+        </h3>
+    </div>
+    <div class="container" id="services">
+        <h2>Our Services</h2>
+        <ul>
+            <li>Consulting Services</li>
+            <li>GST Consulting Services</li>
+            <li>Due Diligence Review (DDR)</li>
+            <li>India Entry Service</li>
+            <li>Ind-AS Conversion Services</li>
+            <li>Internal Financial Control (IFC)</li>
+            <li>SOP’s and Automation</li>
+            <li>MIS Designing</li>
+            <li>Service Export from India Scheme</li>
+            <li>Finance & Accounts Outsourcing Services</li>
+            <li>Accounts Payable (Procure to Pay)</li>
+            <li>Employee reimbursement system</li>
+            <li>Accounts Receivable Outsourcing</li>
+            <li>Payroll Processing</li>
+            <li>Compliances Services</li>
+            <li>Taxation Compliances</li>
+            <li>XBRL Conversion Services</li>
+            <li>Compliance Audit</li>
+            <li>Assessment Readiness Review</li>
+            <li>Internal Audit services</li>
+            <li>General Internal Audit</li>
+            <li>Internal Audit of Start-Ups</li>
+            <li>Internal Audit of Food & Beverages Chains</li>
+            <li>Fraud Investigation Audit</li>
+            <li>Systems Audit</li>
+            <li>Pre-ERP Implementation Audit</li>
+        </ul>
+    </div>
+    <div class="footer" id="contact">
+        <h2>Contact Us</h2>
+        <!-- Add your Contact Us content here -->
     </div>
 </body>
 </html>

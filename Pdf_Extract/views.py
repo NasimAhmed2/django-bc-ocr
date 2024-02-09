@@ -130,7 +130,8 @@ def display_pdf(request, pdf_id):
 
 def display_all_pdf(request):
     # Retrieve all PDF files from the Page model
-    pdf_files = Page.objects.all()
+    user = request.user
+    pdf_files = Page.objects.filter(user=user)
 
     return render(request, 'display_pdf1.html', {'pdf_files': pdf_files})
 

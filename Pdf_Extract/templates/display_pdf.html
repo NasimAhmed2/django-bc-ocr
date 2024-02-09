@@ -82,7 +82,6 @@
 
     <script>
 
-        // Your JavaScript code here
         document.addEventListener('DOMContentLoaded', function () {
             const dropZone = document.getElementById('dropZone');
 
@@ -101,8 +100,8 @@
                 dropZone.classList.remove('drag-over');
 
                 const files = event.dataTransfer.files;
-                // Handle dropped files (e.g., display confirmation)
-                console.log('File dropped:', files);
+                // Log dropped files for debugging
+                console.log('Files dropped:', files);
             });
 
             const processButton = document.getElementById('processButton');
