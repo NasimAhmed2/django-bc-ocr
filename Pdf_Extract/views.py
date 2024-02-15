@@ -10,29 +10,23 @@ from django.contrib.auth import logout
 import shutil
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from .utils import analyze_invoice , hello
+import json
 
-# def process_uploaded_pdf(uploaded_pdf):
-#     # Open the uploaded PDF file
-#     with uploaded_pdf.pdf_file.open('rb') as file:
-#         # Open the PDF file using fitz
-#         pdf_document = fitz.open(file)
 
-#         # Iterate through each page of the PDF file
-#         for page_num in range(len(pdf_document)):
-#             # Get the page
-#             page = pdf_document.load_page(page_num)
-#             directory = 'pdf_pages/'
-#             if not os.path.exists(directory):
-#                 os.makedirs(directory)
-#             page_path = f'pdf_pages/{uploaded_pdf.id}_page_{page_num + 1}.pdf'
-#             new_doc = fitz.open()
-#             new_doc.insert_pdf(pdf_document, from_page=page_num, to_page=page_num)
-#             new_doc.save(page_path)
-#             Page.objects.create(
-#                 uploaded_pdf=uploaded_pdf,
-#                 page=page_path,
-#                 page_number=page_num + 1
-#             )
+@login_required
+def process_pdf(request):
+    if request.method == 'POST':
+        # Get the JSON string of checked page URLs from the form data
+        urls = request.POST.get('checked_page_urls')
+        checked_page_urls = urls.split(',')[0]
+        # print(checked_page_urls)
+        # Perform PDF analysis
+        # result_dict = analyze_invoice(checked_page_urls)
+        result_dict = hello(checked_page_urls)
+
+        # Render a template with the result_dict
+        return render(request, 'result.html', {'result_dict': result_dict})
 
 def process_uploaded_pdf(request,uploaded_pdf):
     
@@ -68,13 +62,12 @@ def delete_user_data(request):
         # Get records from UploadedPDF table for the logged-in user
         user_uploaded_pdfs = UploadedPDF.objects.filter(user=user)
         # Get records from Page table for the logged-in user
-        print(user)
+        # print(user)
         user_pages = Page.objects.filter(user=user)
         # Delete files from pdf_page/ directory based on URLs stored in Page objects
         for page in user_pages:
-            print(page.id, page.page, page.page_number, page.uploaded_pdf_id, page.user_id)
+            # print(page.id, page.page, page.page_number, page.uploaded_pdf_id, page.user_id)
             page_file_path = page.page.path
-            print(page_file_path)
             if os.path.exists(page_file_path):
                 os.remove(page_file_path)
 
@@ -128,6 +121,7 @@ def display_pdf(request, pdf_id):
     pages = Page.objects.filter(uploaded_pdf_id=pdf_id)
     return render(request, 'display_pdf.html', {'uploaded_pdf': uploaded_pdf, 'pages': pages})
 
+@login_required
 def display_all_pdf(request):
     # Retrieve all PDF files from the Page model
     user = request.user

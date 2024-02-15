@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            color: #343a40;
+        }
+
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #9cc1e9;
+            color: rgb(15, 13, 13);
+        }
+
+        .indented {
+            padding-left: 20px;
+            background-color: #597ea7;
+        }
+    </style>
+</head>
+<body>
+    <!-- pdf_analyzer/templates/pdf_analyzer/result.html -->
+    <h1>PDF Analysis Results</h1>
+    <table>
+        {% for key, value in result_dict.items %}
+            <tr>
+                <th {% if key == "Invoice items:" %} rowspan="4"{% endif %}>{{ key }}</th>
+                {% if key == "Invoice items:" %}
+                    <th class="indented">Item</th>
+                    <th class="indented">Description</th>
+                    <th class="indented">Quantity</th>
+                    <th class="indented">Unit</th>
+                    <th class="indented">UnitPrice</th>
+                    <th class="indented">ProductCode</th>
+                    <th class="indented">Date</th>
+                    <th class="indented">Tax</th>
+                    <th class="indented">TaxRate</th>
+                    <th class="indented">Amount</th>
+                {% else %}
+                    <th colspan="10">{{ value }}</th>
+                {% endif %}
+            </tr>
+            {% if key == "Invoice items:" %}
+                {% for item_key, item_value in value.items %}
+                    <tr>
+                        <td class="indented" style="vertical-align: middle;">{{ item_key|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.item_description|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.item_quantity|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.item_unit|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.unit_price|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.product_code|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.item_date|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.tax|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.tax_rate|default:"None" }}</td>
+                        <td class="indented" style="vertical-align: middle;">{{ item_value.amount|default:"None" }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </table>
+    
+
+</body>
+</html>

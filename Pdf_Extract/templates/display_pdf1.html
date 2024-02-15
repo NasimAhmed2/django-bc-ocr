@@ -19,17 +19,22 @@
             width: 100%;
             height: 50vh; /* Set the height to 50% of the viewport height */
             overflow-x: hidden;
+            background: #ccc;
         }
 
         .slides {
             display: flex;
             transition: transform 0.5s ease;
-            height: 100%; /* Ensure slides fill the entire height of the slider */
+            height: 90%; /* Ensure slides fill the entire height of the slider */
             width: 100%;
+            background-color: #4b7aac;
         }
 
         .pdf-file {
             flex: 0 0 25.0%; /* Each page takes up 1/4 of the slider width */
+            color: #8a7878;
+            background-color: #4b7aac;
+            margin-right: 2px;
         }
 
         .pdf-page-previous {
@@ -92,21 +97,25 @@
 <body>
     <h1>Displaying PDF Pages</h1>
     <div class="slider">
-        <div class="slides">
+        <div class="slides">   
             {% for pdf_file in pdf_files %}
             <div class="pdf-file">
                 <input type="checkbox" class="page-checkbox" data-page-url="{{ pdf_file.page.url }}">
                 <embed class="pdf-page-previous" src="{{ pdf_file.page.url }}" type="application/pdf" width="100%" height="600px" zoom="75%" />
             </div>
             {% endfor %}
-        </div>
-        
+        </div>    
     </div>
+
     <button id="prevBtn">Previous</button>
     <button id="nextBtn">Next</button>
     <!-- Home button -->
-    <button class="home-button" onclick="goToHome()">Upload New PDF</button>
-
+    <div style="display: flex; align-items: center;">
+        <button class="home-button" onclick="goToHome()" style="margin-right: 100px;">Upload New PDF</button>
+        <a class="home-button" href="{% url 'logout' %}">Logout</a>
+        
+    </div>
+    
     
     <button id="processButton">Process File</button>
 
@@ -122,14 +131,84 @@
                 const checkedPages = document.querySelectorAll('.page-checkbox:checked');
                 const checkedPageUrls = Array.from(checkedPages).map(page => page.dataset.pageUrl);
                 console.log('Checked Page URLs:', checkedPageUrls);
-            });
+                // Create a hidden form dynamically
+                const hiddenForm = document.createElement('form');
+                hiddenForm.method = 'post';
+                hiddenForm.action = '{% url "process_pdf" %}';
+                hiddenForm.style.display = 'none';
+
+                // Add CSRF token to the form
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = '{{ csrf_token }}';
+                hiddenForm.appendChild(csrfInput);
+
+                // Add a hidden input field to store the checked page URLs
+                const checkedPagesInput = document.createElement('input');
+                checkedPagesInput.type = 'hidden';
+                checkedPagesInput.name = 'checked_page_urls';
+                checkedPagesInput.value = checkedPageUrls;
+                console.log(checkedPageUrls);
+                hiddenForm.appendChild(checkedPagesInput);
+
+                // Append the form to the document body
+                document.body.appendChild(hiddenForm);
+
+                // Submit the form
+                hiddenForm.submit();
+
+                // Delay removal of the form to ensure data is sent
+                setTimeout(() => {
+                    // Remove the form from the DOM
+                    document.body.removeChild(hiddenForm);
+                }, 100); // Adjust the delay as needed
+                });
 
             pdfFiles.forEach(pdfFile => {
-                pdfFile.addEventListener('click', () => {
-                    // Toggle the 'zoomed' class for the clicked PDF file
-                    pdfFile.classList.toggle('zoomed');
+                const checkbox = pdfFile.querySelector('.page-checkbox');
+                const pdfPage = pdfFile.querySelector('.pdf-page');
+
+                pdfFile.addEventListener('click', (event) => {
+                    // Check if the click target is the checkbox
+                    if (event.target !== checkbox) {
+                        // Toggle the 'zoomed' class for the clicked PDF file
+                        pdfFile.classList.toggle('zoomed');
+
+                        // Check if the file is zoomed, and if so, open a new toggle
+                        if (pdfFile.classList.contains('zoomed')) {
+                            openZoomedToggle(pdfFile, checkbox);
+                        }
+                    }
+                });
+
+                checkbox.addEventListener('click', (event) => {
+                    // Prevent the click event from propagating to the parent (PDF file) when the checkbox is clicked
+                    event.stopPropagation();
                 });
             });
+
+            function openZoomedToggle(pdfFile, originalCheckbox) {
+                const zoomedToggle = document.createElement('div');
+                zoomedToggle.classList.add('pdf-file', 'zoomed');
+                zoomedToggle.innerHTML = `
+                    <input type="checkbox" class="page-checkbox" data-page-url="${originalCheckbox.dataset.pageUrl}" ${originalCheckbox.checked ? 'checked' : ''}>
+                    <embed class="pdf-page" src="${originalCheckbox.dataset.pageUrl}" type="application/pdf" width="100%" height="100%">
+                `;
+                document.body.appendChild(zoomedToggle);
+
+                // Add a close button to the zoomed toggle
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Close';
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(zoomedToggle);
+                    pdfFile.classList.remove('zoomed');
+
+                    // Update the checkbox state in the slider when closing the zoomed view
+                    originalCheckbox.checked = zoomedToggle.querySelector('.page-checkbox').checked;
+                });
+                zoomedToggle.appendChild(closeButton);
+            }
 
             function showSlide() {
                 slides.style.transform = `translateX(-${currentSlide * 100}%)`;
@@ -145,7 +224,6 @@
                 showSlide();
             });
         });
-
 
 
         function goToHome() {
