@@ -1,6 +1,6 @@
 # myapp/urls.py
 from django.urls import path
-from .views import home , display_pdf , display_all_pdf ,user_login ,signup , logout_view , base_view , process_pdf
+from .views import home , display_pdf , display_all_pdf ,user_login ,signup , logout_view , base_view , process_pdf, export_to_excel
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
@@ -15,5 +15,6 @@ urlpatterns = [
     path('display_pdf/', display_all_pdf, name='display_all_pdf'),
     path('logout/', logout_view, name='logout'),
     path('process_pdf/', process_pdf, name='process_pdf'),
+    path('export/', export_to_excel, name='export_to_excel'),
     # Add other URLs as needed
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

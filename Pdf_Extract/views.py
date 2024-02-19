@@ -12,7 +12,35 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .utils import analyze_invoice , hello
 import json
+import pandas as pd
+from django.http import HttpResponse
+from io import BytesIO
 
+@login_required
+def export_to_excel(request):
+    if request.method == 'POST':
+        result_dict = request.POST.get('result_dict')
+        # Convert the result_dict string back to a dictionary
+        result_dict = eval(result_dict)
+
+        # Create a DataFrame from the result_dict
+        df = pd.DataFrame(list(result_dict.items()), columns=['Keys', 'Values'])
+
+        # Prepare Excel file in memory
+        excel_file = BytesIO()
+        with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
+            df.to_excel(writer, sheet_name='Sheet1', index=False)
+
+        # Rewind the buffer
+        excel_file.seek(0)
+
+        # Set up response
+        response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="result_pdf.xlsx"'
+        response['Content-Transfer-Encoding'] = 'binary'
+        return response
+    else:
+        return HttpResponse("Invalid request")
 
 @login_required
 def process_pdf(request):
@@ -22,11 +50,26 @@ def process_pdf(request):
         checked_page_urls = urls.split(',')[0]
         # print(checked_page_urls)
         # Perform PDF analysis
-        # result_dict = analyze_invoice(checked_page_urls)
-        result_dict = hello(checked_page_urls)
+        checked_page_urls="D:\DJANGO\Blue Consulting Ocr\BC_OCR"+ checked_page_urls
+        
+        result_dict = analyze_invoice(checked_page_urls)
+        # result_dict = hello(checked_page_urls)
+        rowspan_value = 1
+        taxspan_value = 1
+        for key, value in result_dict.items():
+            
+            if key == "Invoice items:":
+                rowspan_value = len(value) + 1
+            elif key == "Tax Items":
+                taxspan_value = len(value) + 1
+                
+            
+            
+                
 
         # Render a template with the result_dict
-        return render(request, 'result.html', {'result_dict': result_dict})
+        return render(request, 'result.html', {'result_dict': result_dict, 'rowspan_value': rowspan_value,
+                                               'taxspan_value': taxspan_value})
 
 def process_uploaded_pdf(request,uploaded_pdf):
     

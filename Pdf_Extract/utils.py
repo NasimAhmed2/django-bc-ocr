@@ -3,7 +3,9 @@ import os
 from pprint import pprint
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
+from .bank_details import RowText_to_Dict
 
+# set `<your-endpoint>` and `<your-key>` variables with the values from the Azure portal
 
 
 
@@ -25,8 +27,10 @@ def format_polygon(polygon):
 def analyze_invoice(path):
     
     # file_path = r'D:\DJANGO\Blue Consulting Ocr\BC_OCR\pdf_pages\42_page_1.pdf'
-    file_path = "D:\DJANGO\Blue Consulting Ocr\BC_OCR"+ str(path)
-    file_path_ = rf"{file_path}"
+    # file_path = "D:\DJANGO\Blue Consulting Ocr\BC_OCR"+ path
+    print(path)
+    file_path_ = rf"{path}"
+    print(file_path_)
     result_dict = {}
     # file_path = 'D:/sample_pdf10.pdf'
     with open(file_path_, "rb") as file:
@@ -179,7 +183,7 @@ def analyze_invoice(path):
             pass
         
         print("Tax items:")
-        result_dict["tax items"] = {}
+        result_dict["Tax Items"] = {}
         tax_key = ''
         try:
             for idx, item in enumerate(invoice.fields.get("TaxDetails").value):
@@ -198,7 +202,7 @@ def analyze_invoice(path):
                 rate = item.value.get("Rate")
                 if rate:
                     dictt['rate'] = str(rate.value)
-                result_dict["tax items"][tax_key] = dictt
+                result_dict["Tax Items"][tax_key] = dictt
                 
         except:
             pass
@@ -239,42 +243,92 @@ def analyze_invoice(path):
         if Payment_Term:
             result_dict['Payment_Term'] = Payment_Term.value
             
+        lines = invoices.content.split('\n')
+        bank_deatils_instance = RowText_to_Dict(lines)
+        bank_details = bank_deatils_instance.process_lines()
+        print(bank_details)
+        bank_details['VendorAddress'] = result_dict['VendorAddress']
+        bank_details['Account_holder_name'] = result_dict['VendorName']
+        result_dict["Bank_Details"] = bank_details
 
         print("----------------------------------------")
         # pprint(result_dict)
         return result_dict
 
 def hello(urls):
-    dict_hello = {'CustomerAddress': '60, Harish Chatterjee Street, Kolkata, None, 700025, None',
-                'CustomerAddressRecipient': 'Everest Industries Limited',
-                'CustomerName': 'Everest Industries Limited',
-                'Cutomer Gst No.': '19AAACE7550N1Z7',
-                'Invoice items:': {'item#1': {'amount': '1200.0',
-                                            'item_date': 'None',
-                                            'unit_price': '1200.0'},
-                                    'item#2': {'amount': '1200.0',
-                                            'item_description': '#82456090 Date: '
-                                                                '29-11-2023\n'
-                                                                'Vehicle Group: Dzire | '
-                                                                'WB23C 9877\n'
-                                                                'Duty Type: 8H 80KMs '
-                                                                '(Kolkata)\n'
-                                                                'Passengers: Bibek Behur',
-                                            'item_quantity': 1.0,
-                                            'unit_price': '1200.0'},
-                                    'item#3': {'amount': '0.0',
-                                            'item_description': 'Charges',
-                                            'item_quantity': 1.0,
-                                            'unit_price': '0.0'}},
-                'InvoiceDate': '2023-12-28',
-                'InvoiceId': 'RC2324-007090',
-                'InvoiceTotal': '₹1200.0',
-                'SubTotal': '₹1200.0',
-                'Vendor Gst No.': '19ABBFR668911ZB',
-                'VendorAddress': '60, Harish Chatterjee Street, Kolkata, None, 700025, None',
-                'VendorAddressRecipient': 'Rameshwar Car Rentals',
-                'VendorName': 'Rameshwar Car Rentals',
-                'tax items': {'CGST': {'amount': '₹30.0', 'rate': '2.5%:'}, 'SGST': {}}}
+    dict_hello = {'BillingAddress': '102, B WING, FIRST FLOOR, INTERNATIONAL AIRPORT ROAD, '
+                                'AMRUTHAHALLI, KODIGEHALLI\n'
+                                'GATE, HEBBAL, BANGALORE, Karnataka, 560092, None',
+                'BillingAddressRecipient': 'EVEREST INDUSTRIES LIMITED',
+                'CustomerName': 'EVEREST INDUSTRIES LIMITED',
+                'Cutomer Gst No.': '27AAACE7550N1ZA',
+                'Invoice items:': {'item#1': {'amount': '21375.0',
+                                            'item_description': 'OCEAN FREIGHT(USD\n'
+                                                                '50*5*85.50)',
+                                            'product_code': '996521',
+                                            'tax': '1069.0',
+                                            'tax_rate': '5'},
+                                    'item#2': {'amount': '4000.0',
+                                            'item_description': 'BILL OF LADING FEE',
+                                            'product_code': '996759',
+                                            'tax': '720.0',
+                                            'tax_rate': '18'},
+                                    'item#3': {'amount': '2500.0',
+                                            'item_description': 'HBL RELEASE',
+                                            'product_code': '996759',
+                                            'tax': '450.0',
+                                            'tax_rate': '18'},
+                                    'item#4': {'amount': '7500.0',
+                                            'item_description': 'CUSTOM CLEARANCE(INR\n'
+                                                                '1500*5)',
+                                            'product_code': '996712',
+                                            'tax': '1350.0',
+                                            'tax_rate': '18'},
+                                    'item#5': {'amount': '250.0',
+                                            'item_description': 'COO',
+                                            'product_code': '996719',
+                                            'tax': '45.0',
+                                            'tax_rate': '18'},
+                                    'item#6': {'amount': '500.0',
+                                            'item_description': 'SHIPPING BILL CHARGES',
+                                            'product_code': '996719',
+                                            'tax': '90.0',
+                                            'tax_rate': '18'},
+                                    'item#7': {'amount': '850.0',
+                                            'item_description': 'MUC CHARGE(INR 170*5)',
+                                            'product_code': '996719',
+                                            'tax': '153.0',
+                                            'tax_rate': '18'},
+                                    'item#8': {'amount': '100.0',
+                                            'item_description': 'CMC CHARGE',
+                                            'product_code': '996719',
+                                            'tax': '18.0',
+                                            'tax_rate': '18'},
+                                    'item#9': {'amount': '2250.0',
+                                            'item_description': 'TOLL CHARGES(INR 450*5)',
+                                            'product_code': '996719',
+                                            'tax': '405.0',
+                                            'tax_rate': '18'}},
+                'InvoiceDate': '2023-06-26',
+                'InvoiceId': '53013401480700',
+                'Payment_Term': '30N',
+                'Bank_Details': {'Bank_Name': 'ICICI Bank', 'Bank_Branch': 'MUMBAIFORT', 'IFSC_Code': 'ICIC0006235', 'Bank_Account_No': None, 'Email': None, 'VendorAddress': '12/14, modi street fort mumbai 400, None, None, None, None', 'Account_holder_name': 'TEJ INTERNATIONAL'},
+                'ServiceEndDate': '2023-06-26',
+                'ServiceStartDate': '2023-06-18',
+                'ShippingAddress': '102, B WING, FIRST FLOOR, INTERNATIONAL AIRPORT ROAD, '
+                                    'AMRUTHAHALLI, KODIGEHALLI\n'
+                                    'GATE, HEBBAL, BANGALORE, Karnataka, 560092, None',
+                'ShippingAddressRecipient': 'FABTECH MODULAR BUILDINGS L.L.C\n'
+                                            'FABTECH INTERNATIONAL LTD,',
+                'Vendor Gst No.': '29AAACK8804H1ZE',
+                'VendorAddress': '102, B WING, FIRST FLOOR, INTERNATIONAL AIRPORT ROAD, '
+                                'AMRUTHAHALLI, KODIGEHALLI\n'
+                                'GATE, HEBBAL, BANGALORE, Karnataka, 560092, None',
+                'VendorAddressRecipient': 'KINTETSU WORLD EXPRESS INDIA\nPRIVATE LIMITED',
+                'VendorName': 'KWE\nGlobal Logistics Partner',
+                'Tax Items': {'CGST': {'amount': '2664.0', 'rate': '9\n%'}, 'SGST': {'amount': '2664.0', 'rate': '9%'}}
+                
+                }
     # for i in range(len(urls)):
     #     field = 'field'+str(i)
     #     dict_hello[field] = f"My Name Is Nasim {i}"
